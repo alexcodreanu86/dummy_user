@@ -8,5 +8,8 @@
     <input type="submit" value="Log In">
   </form>
   <br><br>
+  <% if @message %>
+    <h3> <%= @message %> </h3>
+  <% end %>
   <a href= "/signup">Sign up</a>
 </div>

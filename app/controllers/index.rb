@@ -1,9 +1,19 @@
+enable :sessions
+
 get '/' do
   # Look in app/views/index.erb
   erb :index
 end
 
 post '/' do
+  if (user = User.find_by(email: params[:email])) && user.password == ENCODER.encrypt(params[:password])
+    session[:message] = "logged in"
+    session[:user_id] = user.id
+    redirect('/shorty')
+  else
+    @message = "Invalid email or password!!!"
+    erb :index
+  end
 
   # get user credentials
   # check, and set session
@@ -11,13 +21,18 @@ post '/' do
 end
 
 get '/shorty' do
-  # check if user logged in
-  # if so, render shorty page
-  # else, redirect to sign in page
-  erb :shorty
+  if session[:message] == "logged in"
+    @user = User.find(session[:user_id])
+    erb :shorty
+  else
+    @message = "Please log in first"
+    erb :index
+  end
 end
 
 get '/logout' do
+  session.clear
+  redirect('/')
   # delete session
   # redirect home
 end
@@ -27,5 +42,8 @@ get '/signup' do
 end
 
 post '/signup' do
-  # create user
+  User.create(name:  params[:name], email: params[:email], password: ENCODER.encrypt(params[:password]))
+  erb :index
 end
+
+
